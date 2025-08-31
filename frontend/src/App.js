@@ -28,6 +28,40 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
+      <footer className="app-footer">
+          <div className="footer-trademark">
+            <p>
+              Built by{" "}
+              <a
+                href="https://portfolio-eta-blush-qsq9j1ksqi.vercel.app"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <strong>Ujwal Khairnar</strong>
+              </a>
+            </p>
+            <p>© 2025 Ujwal Khairnar. All rights reserved.</p>
+            <div className="footer-links">
+              <a
+                href="https://github.com/Ujwal-27K"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </a>
+              <span>•</span>
+              <a
+                href="https://linkedin.com/in/ujwal-khairnar"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn
+              </a>
+              <span>•</span>
+              <a href="mailto: ujwal.khairnar.uk@gmail.com">Contact</a>
+            </div>
+          </div>
+        </footer>
     </>
   );
 }
