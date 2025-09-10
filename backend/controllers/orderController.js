@@ -8,32 +8,31 @@ const createOrder = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ success: false, message: 'Validation failed', errors: errors.array() });
 
-    const { items, shippingAddress, billingAddress, paymentInfo, itemsPrice, taxPrice, shippingPrice, totalPrice } = req.body;
+    const { orderItems, shippingAddress, paymentMethod, itemsPrice, taxPrice, shippingPrice, totalPrice } = req.body;
 
-    for (const item of items) {
+    for (const item of orderItems) {
       const product = await Product.findById(item.product);
       if (!product) return res.status(404).json({ success: false, message: `Product not found: ${item.product}` });
-      if (product.stock < item.quantity) return res.status(400).json({ success: false, message: `Insufficient stock for ${product.name}` });
+      if (product.stock < item.qty) return res.status(400).json({ success: false, message: `Insufficient stock for ${product.name}` });
     }
 
     const order = await Order.create({
       user: req.user._id,
-      items: items.map(item => ({ product: item.product, name: item.name, price: item.price, quantity: item.quantity, image: item.image })),
+      orderItems: orderItems.map(item => ({ product: item.product, name: item.name, price: item.price, qty: item.qty, image: item.image })),
       shippingAddress,
-      billingAddress: billingAddress || shippingAddress,
-      paymentInfo,
+      paymentMethod,
       itemsPrice,
       taxPrice,
       shippingPrice,
       totalPrice
     });
 
-    for (const item of items) {
-      await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.quantity } });
+    for (const item of orderItems) {
+      await Product.findByIdAndUpdate(item.product, { $inc: { stock: -item.qty } });
     }
 
     await order.populate('user', 'name email');
-    await order.populate('items.product', 'name images');
+    await order.populate('orderItems.product', 'name images');
 
     try {
       await sendEmail({
