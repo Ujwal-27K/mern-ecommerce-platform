@@ -49,6 +49,14 @@ const authLimiter = rateLimit({
 app.use('/api/auth', authLimiter);
 
 // CORS configuration
+// Simple fallback CORS (uncomment if the dynamic CORS below doesn't work):
+// app.use(cors({
+//   origin: ['http://localhost:3000', 'https://mern-ecommerce-platform-azure.vercel.app'],
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }));
+
 const allowedOrigins = [
   'http://localhost:3000',
   'https://mern-ecommerce-platform-azure.vercel.app',
