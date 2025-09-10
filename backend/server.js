@@ -49,10 +49,42 @@ const authLimiter = rateLimit({
 app.use('/api/auth', authLimiter);
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://mern-ecommerce-platform-azure.vercel.app',
+  'https://vercel.app',
+  process.env.CLIENT_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
+  origin: function (origin, callback) {
+    console.log('CORS Origin Request:', origin);
+    console.log('Allowed Origins:', allowedOrigins);
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.some(allowedOrigin => 
+      origin === allowedOrigin || 
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.onrender.com')
+    )) {
+      console.log('CORS: Origin allowed:', origin);
+      return callback(null, true);
+    }
+    
+    console.log('CORS: Origin rejected:', origin);
+    const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+    return callback(new Error(msg), false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token'],
+  exposedHeaders: ['*', 'Authorization']
 }));
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -67,6 +99,21 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/user', userRoutes);
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'MERN E-Commerce API is running!',
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/health',
+      products: '/api/products',
+      auth: '/api/auth',
+      orders: '/api/orders'
+    }
+  });
+});
 
 // Health check route
 app.get('/health', (req, res) => {
