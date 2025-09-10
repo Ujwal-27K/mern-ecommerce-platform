@@ -188,6 +188,58 @@ cd frontend && npm start
 
 6️⃣ Open your browser at [http://localhost:3000](http://localhost:3000)
 
+### 🌐 Production Deployment
+
+#### Backend Deployment (Render)
+1. Create new Web Service on Render
+2. Connect your GitHub repository
+3. Set build command: `npm install`
+4. Set start command: `npm start`
+5. Set root directory to `backend`
+6. Add environment variables (see below)
+
+#### Frontend Deployment (Vercel)
+1. Import project from GitHub on Vercel
+2. Set framework preset to "Create React App"
+3. Set root directory to `frontend`
+4. Add environment variables (see below)
+
+### 🔧 Environment Variables
+
+#### Backend (Render) Environment Variables:
+```env
+NODE_ENV=production
+PORT=5000
+CLIENT_URL=https://your-frontend-domain.vercel.app
+
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+
+JWT_SECRET=your_super_secure_jwt_secret_256_bits_minimum
+JWT_EXPIRE=15m
+JWT_REFRESH_SECRET=your_super_secure_refresh_secret_256_bits_minimum
+JWT_REFRESH_EXPIRE=7d
+
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_gmail_address@gmail.com
+EMAIL_PASS=your_gmail_app_password
+EMAIL_FROM="ShopMERN <your_gmail_address@gmail.com>"
+```
+
+#### Frontend (Vercel) Environment Variables:
+```env
+REACT_APP_API_URL=https://your-backend-domain.onrender.com/api
+```
+
+### 👥 Default Admin User
+After running the seed script:
+- Email: `admin@example.com`
+- Password: `Admin@123`
+
 
 ---
 
