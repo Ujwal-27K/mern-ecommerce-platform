@@ -1,7 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const API_URL = process.env.REACT_APP_API_URL;
+import api from '../utils/api';
 
 const initialState = {
   products: [],
@@ -12,13 +10,21 @@ const initialState = {
   error: null
 };
 
-export const fetchProducts = createAsyncThunk(
-  'products/fetchProducts',
+export const getProducts = createAsyncThunk(
+  'products/getProducts',
   async (params = {}, { rejectWithValue }) => {
     try {
+      // Handle price range
+      if (params.priceRange) {
+        const [minPrice, maxPrice] = params.priceRange;
+        params.minPrice = minPrice;
+        params.maxPrice = maxPrice;
+        delete params.priceRange;
+      }
+
       const query = new URLSearchParams(params).toString();
-      const response = await axios.get(`${API_URL}/products?${query}`);
-      return response.data;
+      const { data } = await api.get(`/products?${query}`);
+      return data;
     } catch (err) {
       return rejectWithValue(err.response?.data.message || err.message);
     }
@@ -31,22 +37,23 @@ const productSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProducts.pending, (state) => {
+      .addCase(getProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProducts.fulfilled, (state, action) => {
+      .addCase(getProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload.data;
         state.total = action.payload.total;
         state.page = action.payload.page;
         state.pages = action.payload.pages;
       })
-      .addCase(fetchProducts.rejected, (state, action) => {
+      .addCase(getProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
   }
 });
 
+export const fetchProducts = getProducts;
 export default productSlice.reducer;

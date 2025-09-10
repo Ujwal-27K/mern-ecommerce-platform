@@ -6,27 +6,59 @@ const fs = require('fs');
 // GET /api/products
 const getProducts = async (req, res) => {
   try {
-    let { page = 1, limit = 10, sortBy = 'createdAt', order = 'desc', category, search } = req.query;
+    let { 
+      page = 1, 
+      limit = 12, 
+      sortBy = 'createdAt', 
+      order = 'desc', 
+      category, 
+      search,
+      minPrice,
+      maxPrice,
+      minRating
+    } = req.query;
+    
     page = parseInt(page);
     limit = parseInt(limit);
+    limit = Math.min(limit, 50); // Cap limit at 50
 
     const query = { status: 'active' };
 
+    // Category filter
     if (category) {
       query.category = category;
     }
 
+    // Text search
     if (search) {
-      query.$text = { $search: search };
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { brand: { $regex: search, $options: 'i' } }
+      ];
     }
 
+    // Price range filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = parseFloat(minPrice);
+      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    }
+
+    // Rating filter
+    if (minRating) {
+      query['ratings.average'] = { $gte: parseFloat(minRating) };
+    }
+
+    // Sort options
     const sortOptions = {};
     sortOptions[sortBy] = order === 'desc' ? -1 : 1;
 
     const products = await Product.find(query)
       .sort(sortOptions)
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .lean(); // Use lean for better performance
 
     const total = await Product.countDocuments(query);
 

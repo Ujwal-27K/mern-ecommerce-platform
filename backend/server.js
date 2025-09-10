@@ -13,6 +13,8 @@ const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
 const reviewRoutes = require('./routes/reviews');
 const adminRoutes = require('./routes/admin');
+const categoryRoutes = require('./routes/category');
+const userRoutes = require('./routes/user');
 
 // Import middleware
 const errorHandler = require('./middleware/error');
@@ -63,6 +65,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/user', userRoutes);
 
 // Health check route
 app.get('/health', (req, res) => {
